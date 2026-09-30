@@ -1,5 +1,6 @@
 export const dualSenseConfigUiState = (data, preserveTuning = false) => ({
   audioHaptics: data.audio_haptics,
+  controllerAudio: data.controller_audio ?? true,
   genshinCompatibility: data.genshin_compatibility ?? false,
   tuning: preserveTuning
     ? null
@@ -15,12 +16,14 @@ export const dualSenseConfigReadable = (data) => data?.config_readable === true
 export const dualSenseConfigMatches = (data, requested) =>
   dualSenseConfigReadable(data)
   && data.audio_haptics === requested.audioHaptics
+  && (data.controller_audio ?? true) === requested.controllerAudio
   && (data.genshin_compatibility ?? false) === requested.genshinCompatibility
 
 export const dualSenseConfigAfterInstall = (status, wasInstalled = false) => wasInstalled
   ? null
   : {
       audioHaptics: Boolean(status?.usbip_available && status?.composite_profile),
+      controllerAudio: true,
       genshinCompatibility: false,
     }
 
@@ -69,6 +72,7 @@ export const mergeDualSenseStatus = (current, incoming) => {
   return {
     ...incoming,
     audio_haptics: current.audio_haptics,
+    controller_audio: current.controller_audio,
     genshin_compatibility: current.genshin_compatibility,
     legacy_strength: current.legacy_strength,
     legacy_curve: current.legacy_curve,

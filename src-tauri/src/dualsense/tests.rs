@@ -472,6 +472,7 @@ fn component_download_and_install_timeouts_cover_slow_release_assets() {
 fn core_settings_payload_contains_only_independent_ds5_fields() {
     let payload = serde_json::to_value(CoreDualSenseSettings {
         ds5_audio_haptics: false,
+        ds5_controller_audio: true,
         ds5_legacy_haptics_strength: 1.5,
         ds5_legacy_haptics_curve: 0.5,
         ds5_legacy_haptics_noise_gate: 0.006,
@@ -479,10 +480,23 @@ fn core_settings_payload_contains_only_independent_ds5_fields() {
     })
     .unwrap();
     let object = payload.as_object().unwrap();
-    assert_eq!(object.len(), 5);
+    assert_eq!(object.len(), 6);
     assert!(!object.contains_key("ds5_enabled"));
     assert!(!object.contains_key("gamepad"));
     assert!(!object.contains_key("ds5_sidecar_path"));
+}
+
+#[test]
+fn legacy_core_response_defaults_controller_audio_on() {
+    let settings: CoreDualSenseSettings = serde_json::from_value(serde_json::json!({
+        "ds5_audio_haptics": true,
+        "ds5_legacy_haptics_strength": 1.0,
+        "ds5_legacy_haptics_curve": 0.5,
+        "ds5_legacy_haptics_noise_gate": 0.020,
+        "ds5_genshin_compatibility": false
+    }))
+    .unwrap();
+    assert!(settings.ds5_controller_audio);
 }
 
 #[test]
@@ -551,6 +565,7 @@ async fn confirmed_save_result_skips_a_failing_config_refresh() {
         changed: Some(true),
         settings: CoreDualSenseSettings {
             ds5_audio_haptics: false,
+            ds5_controller_audio: true,
             ds5_legacy_haptics_strength: 1.4,
             ds5_legacy_haptics_curve: 0.7,
             ds5_legacy_haptics_noise_gate: 0.008,
@@ -566,6 +581,7 @@ async fn confirmed_save_result_skips_a_failing_config_refresh() {
 
     assert!(!fetch_called.load(Ordering::Relaxed));
     assert!(!settings.ds5_audio_haptics);
+    assert!(settings.ds5_controller_audio);
     assert_eq!(settings.ds5_legacy_haptics_strength, 1.4);
     assert_eq!(settings.ds5_legacy_haptics_curve, 0.7);
     assert_eq!(settings.ds5_legacy_haptics_noise_gate, 0.008);
@@ -577,8 +593,9 @@ async fn confirmed_save_result_skips_a_failing_config_refresh() {
 fn field_updates_preserve_unrelated_settings() {
     let mut settings = CoreDualSenseSettings::default();
     update_tuning_fields(&mut settings, 1.25, 0.7, 0.006);
-    update_config_fields(&mut settings, true, true);
+    update_config_fields(&mut settings, true, false, true);
     assert!(settings.ds5_audio_haptics);
+    assert!(!settings.ds5_controller_audio);
     assert!(settings.ds5_genshin_compatibility);
     assert_eq!(settings.ds5_legacy_haptics_strength, 1.25);
     assert_eq!(settings.ds5_legacy_haptics_curve, 0.7);
@@ -627,6 +644,7 @@ fn offline_uninstall_status_is_locally_complete() {
     assert_eq!(status.state, "not_installed");
     assert!(!status.installed);
     assert!(status.audio_haptics);
+    assert!(status.controller_audio);
     assert!(!status.config_readable);
     assert!(!status.in_use);
 }

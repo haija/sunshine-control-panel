@@ -125,8 +125,9 @@ export const dualsense = {
   logPanelOpened: () => wrapResult('dualsense_log_panel_opened'),
   install: (packagePaths = []) => wrapResult('dualsense_install', { packagePaths }),
   uninstall: () => wrapResult('dualsense_uninstall'),
-  setConfig: (audioHaptics, genshinCompatibility) => wrapResult('dualsense_set_config', {
+  setConfig: (audioHaptics, controllerAudio, genshinCompatibility) => wrapResult('dualsense_set_config', {
     audioHaptics: !!audioHaptics,
+    controllerAudio: !!controllerAudio,
     genshinCompatibility: !!genshinCompatibility,
   }),
   setHapticsTuning: (strength, curve, noiseGate) => wrapResult('dualsense_set_haptics_tuning', {

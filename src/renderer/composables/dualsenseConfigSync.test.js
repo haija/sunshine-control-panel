@@ -12,6 +12,7 @@ import {
 
 const response = {
   audio_haptics: false,
+  controller_audio: true,
   genshin_compatibility: false,
   legacy_strength: 1.4,
   legacy_curve: 0.7,
@@ -22,6 +23,7 @@ const response = {
 test('keeps locally edited tuning out of a non-tuning save response', () => {
   assert.deepEqual(dualSenseConfigUiState(response, true), {
     audioHaptics: false,
+    controllerAudio: true,
     genshinCompatibility: false,
     tuning: null,
   })
@@ -30,6 +32,7 @@ test('keeps locally edited tuning out of a non-tuning save response', () => {
 test('synchronizes tuning from Core when there are no local edits', () => {
   assert.deepEqual(dualSenseConfigUiState(response), {
     audioHaptics: false,
+    controllerAudio: true,
     genshinCompatibility: false,
     tuning: {
       strength: 1.4,
@@ -42,14 +45,17 @@ test('synchronizes tuning from Core when there are no local edits', () => {
 test('recognizes requested haptics settings after an ambiguous save response', () => {
   assert.equal(dualSenseConfigMatches(response, {
     audioHaptics: false,
+    controllerAudio: true,
     genshinCompatibility: false,
   }), true)
   assert.equal(dualSenseConfigMatches(response, {
     audioHaptics: true,
+    controllerAudio: true,
     genshinCompatibility: true,
   }), false)
   assert.equal(dualSenseConfigMatches({ ...response, config_readable: false }, {
     audioHaptics: false,
+    controllerAudio: true,
     genshinCompatibility: false,
   }), false)
 })
@@ -60,6 +66,7 @@ test('enables the available DualSense capabilities after a fresh install', () =>
     composite_profile: true,
   }), {
     audioHaptics: true,
+    controllerAudio: true,
     genshinCompatibility: false,
   })
   assert.deepEqual(dualSenseConfigAfterInstall({
@@ -67,6 +74,7 @@ test('enables the available DualSense capabilities after a fresh install', () =>
     composite_profile: true,
   }), {
     audioHaptics: false,
+    controllerAudio: true,
     genshinCompatibility: false,
   })
   assert.equal(dualSenseConfigAfterInstall({
@@ -135,6 +143,7 @@ test('preserves confirmed config when a status refresh cannot read Core settings
   assert.deepEqual(mergeDualSenseStatus(current, incoming), {
     ...incoming,
     audio_haptics: false,
+    controller_audio: true,
     genshin_compatibility: false,
     legacy_strength: 1.4,
     legacy_curve: 0.7,

@@ -18,6 +18,7 @@ export function useDualSenseSettings() {
   const { t } = useI18n()
   const saving = ref(false)
   const audioHaptics = ref(false)
+  const controllerAudio = ref(true)
   const genshinCompatibility = ref(false)
   const legacyStrength = ref(1)
   const legacyCurve = ref(0.5)
@@ -29,6 +30,7 @@ export function useDualSenseSettings() {
     busy: computed(() => saving.value || tuningSaving.value),
     onStatus(data, quiet) {
       audioHaptics.value = data.audio_haptics
+      controllerAudio.value = data.controller_audio ?? true
       genshinCompatibility.value = data.genshin_compatibility ?? false
       if (!quiet || !tuningDirty.value) {
         legacyStrength.value = data.legacy_strength
@@ -71,17 +73,20 @@ export function useDualSenseSettings() {
 
   const applyConfigControls = (requested) => {
     audioHaptics.value = requested.audioHaptics
+    controllerAudio.value = requested.controllerAudio
     genshinCompatibility.value = requested.genshinCompatibility
   }
 
   const restoreConfirmedConfigControls = () => {
     audioHaptics.value = status.value.audio_haptics
+    controllerAudio.value = status.value.controller_audio ?? true
     genshinCompatibility.value = status.value.genshin_compatibility ?? false
   }
 
   const synchronizeConfirmedConfig = (preserveTuning) => {
     const uiState = dualSenseConfigUiState(status.value, preserveTuning || tuningDirty.value)
     audioHaptics.value = uiState.audioHaptics
+    controllerAudio.value = uiState.controllerAudio
     genshinCompatibility.value = uiState.genshinCompatibility
     if (uiState.tuning) {
       legacyStrength.value = uiState.tuning.strength
@@ -116,6 +121,7 @@ export function useDualSenseSettings() {
 
   const persistConfigIntent = async (requestedConfig, queue) => {
     const requestedAudioHaptics = requestedConfig.audioHaptics
+    const requestedControllerAudio = requestedConfig.controllerAudio
     const requestedGenshinCompatibility = requestedConfig.genshinCompatibility
     const preserveTuning = tuningDirty.value
     operationError.value = ''
@@ -124,6 +130,7 @@ export function useDualSenseSettings() {
     if (queue.hasPending()) return { success: false, preserveTuning }
     let result = await dualsense.setConfig(
       requestedAudioHaptics,
+      requestedControllerAudio,
       requestedGenshinCompatibility,
     )
     let refreshedAfterFailure = false
@@ -146,6 +153,7 @@ export function useDualSenseSettings() {
       if (canRetry) {
         result = await dualsense.setConfig(
           requestedAudioHaptics,
+          requestedControllerAudio,
           requestedGenshinCompatibility,
         )
         refreshedAfterFailure = false
@@ -194,13 +202,16 @@ export function useDualSenseSettings() {
   const saveSettings = async () => {
     if (operation.value) {
       audioHaptics.value = status.value.audio_haptics
+      controllerAudio.value = status.value.controller_audio ?? true
       genshinCompatibility.value = status.value.genshin_compatibility ?? false
       return
     }
     const requestedAudioHaptics = audioHaptics.value
+    const requestedControllerAudio = controllerAudio.value
     const requestedGenshinCompatibility = requestedAudioHaptics && genshinCompatibility.value
     const requestedConfig = {
       audioHaptics: requestedAudioHaptics,
+      controllerAudio: requestedControllerAudio,
       genshinCompatibility: requestedGenshinCompatibility,
     }
     invalidateStatusRefresh()
@@ -215,6 +226,12 @@ export function useDualSenseSettings() {
     audioHaptics.value = next
     if (!next) genshinCompatibility.value = false
     testCompleted.value = false
+    await saveSettings()
+  }
+
+  const setControllerAudio = async (next) => {
+    if (operation.value || (controllerAudio.value === next && !saving.value)) return
+    controllerAudio.value = Boolean(next)
     await saveSettings()
   }
 
@@ -301,11 +318,11 @@ export function useDualSenseSettings() {
 
   return {
     component,
-    audioHaptics, genshinCompatibility,
+    audioHaptics, controllerAudio, genshinCompatibility,
     legacyStrength, legacyCurve, legacyNoiseGate,
     tuningStrengthFeel, tuningCurveFeel, tuningGateFeel,
     tuningSaving, tuningDirty, testCompleted,
-    setAudioHaptics, setGenshinCompatibility,
+    setAudioHaptics, setControllerAudio, setGenshinCompatibility,
     applyDefaultPreset, applyErmPreset, saveTuning, test,
   }
 }

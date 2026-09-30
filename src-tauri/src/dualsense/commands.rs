@@ -106,6 +106,7 @@ pub async fn dualsense_install(
 #[tauri::command]
 pub async fn dualsense_set_config(
     audio_haptics: bool,
+    controller_audio: bool,
     genshin_compatibility: bool,
 ) -> Result<DualSenseStatus, String> {
     let _operation = COMPONENT_OPERATION.try_lock().map_err(|_| {
@@ -131,7 +132,12 @@ pub async fn dualsense_set_config(
     }
     let snapshot = get_core_ds5_settings().await?;
     let mut settings = snapshot.response.settings;
-    update_config_fields(&mut settings, audio_haptics, genshin_compatibility);
+    update_config_fields(
+        &mut settings,
+        audio_haptics,
+        controller_audio,
+        genshin_compatibility,
+    );
     let entity_tag = require_entity_tag(snapshot.entity_tag)?;
     let applied = tokio::time::timeout(
         CONFIG_APPLY_TIMEOUT,

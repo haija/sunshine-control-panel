@@ -48,6 +48,24 @@
       </div>
     </section>
 
+    <section v-if="componentOperational" class="ds5-section" :aria-label="t.dualSense.controllerAudioTitle">
+      <div class="ds5-section-head">
+        <span class="ds5-section-label">? {{ t.dualSense.controllerAudioTitle }}</span>
+        <span class="ds5-section-rule"></span>
+      </div>
+      <div class="ds5-compat-row">
+        <div>
+          <strong>{{ t.dualSense.controllerAudio }}</strong>
+          <p class="ds5-tuning-hint" style="margin-bottom: 0">{{ t.dualSense.controllerAudioTip }}</p>
+        </div>
+        <el-checkbox
+          v-model="controllerAudio"
+          :disabled="status.in_use || componentControlsBusy"
+          @change="setControllerAudio"
+        >{{ controllerAudio ? t.dualSense.enabledLabel : t.dualSense.disabledLabel }}</el-checkbox>
+      </div>
+    </section>
+
     <section v-if="componentOperational" class="ds5-section" :aria-label="t.dualSense.tuningTitle">
       <div class="ds5-section-head">
         <span class="ds5-section-label">◈ {{ t.dualSense.tuningTitle }}</span>
@@ -216,11 +234,11 @@ const emit = defineEmits(['open-controller-meta', 'manage-components'])
 defineProps({ embedded: { type: Boolean, default: false } })
 const {
   component,
-  audioHaptics, genshinCompatibility,
+  audioHaptics, controllerAudio, genshinCompatibility,
   legacyStrength, legacyCurve, legacyNoiseGate,
   tuningStrengthFeel, tuningCurveFeel, tuningGateFeel,
   tuningSaving, tuningDirty, testCompleted,
-  setAudioHaptics, setGenshinCompatibility,
+  setAudioHaptics, setControllerAudio, setGenshinCompatibility,
   applyDefaultPreset, applyErmPreset, saveTuning, test,
 } = useDualSenseSettings()
 const {

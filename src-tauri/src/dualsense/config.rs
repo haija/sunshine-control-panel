@@ -4,6 +4,10 @@ use log::warn;
 use reqwest::header::HeaderValue;
 use serde::{Deserialize, Serialize};
 
+const fn default_controller_audio() -> bool {
+    true
+}
+
 pub(crate) const CONFIG_APPLY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 pub(crate) const CORE_CONFIG_READ_ATTEMPTS: usize = 3;
 pub(crate) const CORE_CONFIG_RETRY_DELAY: std::time::Duration =
@@ -12,6 +16,8 @@ pub(crate) const CORE_CONFIG_RETRY_DELAY: std::time::Duration =
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub(crate) struct CoreDualSenseSettings {
     pub(crate) ds5_audio_haptics: bool,
+    #[serde(default = "default_controller_audio")]
+    pub(crate) ds5_controller_audio: bool,
     pub(crate) ds5_legacy_haptics_strength: f64,
     pub(crate) ds5_legacy_haptics_curve: f64,
     pub(crate) ds5_legacy_haptics_noise_gate: f64,
@@ -22,6 +28,7 @@ impl Default for CoreDualSenseSettings {
     fn default() -> Self {
         Self {
             ds5_audio_haptics: true,
+            ds5_controller_audio: true,
             ds5_legacy_haptics_strength: 1.0,
             ds5_legacy_haptics_curve: 0.5,
             ds5_legacy_haptics_noise_gate: 0.020,
@@ -269,9 +276,11 @@ pub(crate) fn clamp_tuning(strength: f64, curve: f64, noise_gate: f64) -> Option
 pub(crate) fn update_config_fields(
     settings: &mut CoreDualSenseSettings,
     audio_haptics: bool,
+    controller_audio: bool,
     genshin_compatibility: bool,
 ) {
     settings.ds5_audio_haptics = audio_haptics;
+    settings.ds5_controller_audio = controller_audio;
     settings.ds5_genshin_compatibility = genshin_compatibility;
 }
 

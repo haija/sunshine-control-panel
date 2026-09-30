@@ -115,6 +115,7 @@ pub struct DualSenseStatus {
     pub installed: bool,
     pub verified: bool,
     pub audio_haptics: bool,
+    pub controller_audio: bool,
     pub genshin_compatibility: bool,
     pub genshin_compatibility_available: bool,
     pub legacy_strength: f64,
