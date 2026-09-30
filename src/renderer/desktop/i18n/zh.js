@@ -1276,7 +1276,7 @@ export const zh = {
     nativeModeShort: 'HD Haptics',
     controllerAudioTitle: '手柄扬声器',
     controllerAudio: '将游戏音频传输到 DualSense 扬声器',
-    controllerAudioTip: '保留现有四声道触觉布局，并在客户端支持时添加立体声扬声器声道。关闭后使用仅执行器的旧传输方式。',
+    controllerAudioTip: '当客户端支持四声道手柄音频时，添加立体声扬声器声道。保存的设置将在下一次串流时生效；禁用后使用协商得到的最佳仅执行器回退模式。',
     nativeModeTip: '在普通手柄功能之外，提供游戏使用 HD Haptics 所需的四声道音频设备。',
     nativeUnavailable: '安装并检测到 USB/IP 后可用。',
     included: '基础能力',

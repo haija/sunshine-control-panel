@@ -829,7 +829,8 @@ pub(crate) async fn dualsense_uninstall_impl() -> Result<DualSenseStatus, String
     let reset_result: Result<(), String> = async {
         let snapshot = get_core_ds5_settings().await?;
         let mut settings = snapshot.response.settings;
-        update_config_fields(&mut settings, true, false);
+        let controller_audio = settings.ds5_controller_audio;
+        update_config_fields(&mut settings, true, controller_audio, false);
         let entity_tag = require_entity_tag(snapshot.entity_tag)?;
         save_core_ds5_settings(settings, entity_tag).await?;
         Ok(())
